@@ -3,8 +3,12 @@ package tranduongkyoto.redditbackend.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import tranduongkyoto.redditbackend.exceptions.SpringRedditException;
 
@@ -20,11 +24,13 @@ import static io.jsonwebtoken.Jwts.parser;
 import static io.jsonwebtoken.Jwts.parserBuilder;
 
 @Service
+@RequiredArgsConstructor
 public class JwtProvider {
 
     private KeyStore keyStore;
     @Value("${jwt.expiration.time}")
     private Long jwtExpirationInMillis;
+    private final JwtEncoder jwtEncoder;
 
     @PostConstruct
     public void init(){
@@ -46,6 +52,18 @@ public class JwtProvider {
                 .signWith(getPrivateKey())
                 .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
                 .compact();
+    }
+
+    public String generateTokenWithUserName(String username) {
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("self")
+                .issuedAt(Instant.now())
+                .expiresAt(Instant.now().plusMillis(jwtExpirationInMillis))
+                .subject(username)
+                .claim("scope", "ROLE_USER")
+                .build();
+
+        return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
     private PrivateKey getPrivateKey() {

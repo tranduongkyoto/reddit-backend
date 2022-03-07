@@ -1,18 +1,30 @@
 package tranduongkyoto.redditbackend.mapper;
 
+import com.github.marlonlom.utilities.timeago.TimeAgo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
-import tranduongkyoto.redditbackend.model.Post;
+import tranduongkyoto.redditbackend.dto.PostRequest;
+import tranduongkyoto.redditbackend.dto.PostResponse;
+import tranduongkyoto.redditbackend.model.*;
 import tranduongkyoto.redditbackend.repository.CommentRepository;
 import tranduongkyoto.redditbackend.repository.VoteRepository;
 import tranduongkyoto.redditbackend.service.AuthService;
 
+import java.util.Optional;
+
+import static tranduongkyoto.redditbackend.model.VoteType.DOWNVOTE;
+import static tranduongkyoto.redditbackend.model.VoteType.UPVOTE;
+
+
 @Mapper(componentModel = "spring")
 public abstract class PostMapper {
 
+    @Autowired
     private CommentRepository commentRepository;
+    @Autowired
     private VoteRepository voteRepository;
+    @Autowired
     private AuthService authService;
 
 
@@ -58,4 +70,5 @@ public abstract class PostMapper {
         }
         return false;
     }
+
 }
